@@ -1,118 +1,26 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <meta charset="utf-8" />
-  <title>Truck Track Dashboard</title>
+    <meta charset="utf-8" />
+    <title>Truck Track Dashboard</title>
 
-  <script src="https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.js"></script>
-  <link href="https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.css" rel="stylesheet" />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.css" rel="stylesheet" />
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-    }
-
-    #map {
-      width: 100vw;
-      height: 100vh;
-    }
-
-    .panel {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      background: white;
-      padding: 16px;
-      border-radius: 12px;
-      z-index: 1;
-      width: 260px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-    }
-
-    .panel h2 {
-      margin: 0 0 10px;
-      font-size: 18px;
-    }
-
-    #truck-info {
-      font-size: 14px;
-      line-height: 1.5;
-    }
-  </style>
+    <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
-  <div class="panel">
-    <h2>Truck Track Dashboard</h2>
-    <div id="truck-info">Waiting for telemetry...</div>
-  </div>
+    <div class="panel">
+        <h2>Truck Track Dashboard</h2>
+        <div id="truck-info">Waiting for telemetry...</div>
+    </div>
 
-  <div id="map"></div>
+    <div id="map"></div>
 
-  <script>
-    mapboxgl.accessToken = "your_mapbox_token_here";
-
-    const API_URL = "http://127.0.0.1:8000/api/v1/trucks";
-
-    const map = new mapboxgl.Map({
-      container: "map",
-      style: "mapbox://styles/mapbox/dark-v11",
-
-      //in mapbox long -> lat
-      center: [139.6917, 35.6895],
-      zoom: 12
-    });
-
-    const markers = {};
-
-    async function loadTrucks() {
-      try {
-        const response = await fetch(API_URL);
-        const trucks = await response.json();
-
-        const info = document.getElementById("truck-info");
-
-        if (trucks.length === 0) {
-          info.innerHTML = "No trucks yet";
-          return;
-        }
-
-        trucks.forEach((truck) => {
-          const lngLat = [truck.longitude, truck.latitude];
-
-          if (!markers[truck.truck_id]) {
-            markers[truck.truck_id] = new mapboxgl.Marker()
-              .setLngLat(lngLat)
-              .setPopup(
-                new mapboxgl.Popup().setHTML(`
-                  <b>${truck.truck_id}</b><br>
-                  Speed: ${truck.speed} km/h<br>
-                  Battery: ${truck.battery_level}%<br>
-                  Time: ${truck.received_at}
-                `)
-              )
-              .addTo(map);
-          } else {
-            markers[truck.truck_id].setLngLat(lngLat);
-          }
-
-          info.innerHTML = `
-            <b>${truck.truck_id}</b><br>
-            Speed: ${truck.speed} km/h<br>
-            Battery: ${truck.battery_level}%<br>
-            Latitude: ${truck.latitude}<br>
-            Longitude: ${truck.longitude}<br>
-            Updated: ${truck.received_at}
-          `;
-        });
-      } catch (error) {
-        document.getElementById("truck-info").innerHTML = "Cannot connect to API";
-      }
-    }
-
-    setInterval(loadTrucks, 3000);
-    loadTrucks();
-  </script>
+    <script src="config.js"></script> config higher than app
+    <script src="app.js"></script>
 </body>
+
 </html>
