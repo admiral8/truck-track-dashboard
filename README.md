@@ -27,8 +27,10 @@ This project simulates truck telemetry data and visualizes the truck location on
 ```text
 simulator.py -> FastAPI backend -> frontend dashboard -> Mapbox map
 ```
+
 ## Project Structure
 
+```text
 T2/
 ├── server.py
 ├── simulator.py
