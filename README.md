@@ -6,6 +6,10 @@ A simple truck telemetry dashboard built with FastAPI, Python, and Mapbox.
 
 This project simulates truck telemetry data and visualizes the truck location on a Mapbox dashboard.
 
+## Screenshot
+
+![Truck Track Dashboard](screenshots/dashboard.png)
+
 ## Features
 
 - Python truck simulator
