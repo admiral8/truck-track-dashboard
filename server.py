@@ -6,7 +6,6 @@ import uvicorn
 
 app = FastAPI(title="T2 Fleet Telemetry API")
 
-# front to success back
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -15,6 +14,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Temporary in-memory storage. Data is lost when the server restarts.
 latest_telemetry = {}
 
 
@@ -24,6 +24,7 @@ class TelemetryData(BaseModel):
     longitude: float
     speed: float
     battery_level: int
+    status: str
 
 
 @app.post("/api/v1/telemetry")
@@ -36,6 +37,7 @@ async def receive_telemetry(data: TelemetryData):
         "longitude": data.longitude,
         "speed": data.speed,
         "battery_level": data.battery_level,
+        "status": data.status,
         "received_at": received_at,
     }
 
@@ -43,7 +45,8 @@ async def receive_telemetry(data: TelemetryData):
         f"[{received_at}] Truck {data.truck_id} -> "
         f"Coordinates: {data.latitude}, {data.longitude} | "
         f"Speed: {data.speed} km/h | "
-        f"Battery: {data.battery_level}%"
+        f"Battery: {data.battery_level}% | "
+        f"Status: {data.status}"
     )
 
     return {
@@ -52,7 +55,7 @@ async def receive_telemetry(data: TelemetryData):
     }
 
 
-# endpoint for the map
+# Endpoint used by the dashboard to fetch latest truck data.
 @app.get("/api/v1/trucks")
 async def get_trucks():
     return list(latest_telemetry.values())
