@@ -4,6 +4,8 @@ from pydantic import BaseModel
 from datetime import datetime
 import uvicorn
 
+from database import get_connection
+
 app = FastAPI(title="T2 Fleet Telemetry API")
 
 app.add_middleware(
@@ -27,6 +29,39 @@ class TelemetryData(BaseModel):
     status: str
 
 
+def save_telemetry_to_db(data: TelemetryData, received_at: str):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        INSERT INTO telemetry_logs (
+            truck_id,
+            latitude,
+            longitude,
+            speed,
+            battery_level,
+            status,
+            received_at
+        )
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """,
+        (
+            data.truck_id,
+            data.latitude,
+            data.longitude,
+            data.speed,
+            data.battery_level,
+            data.status,
+            received_at,
+        ),
+    )
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+
 @app.post("/api/v1/telemetry")
 async def receive_telemetry(data: TelemetryData):
     received_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -40,6 +75,8 @@ async def receive_telemetry(data: TelemetryData):
         "status": data.status,
         "received_at": received_at,
     }
+
+    save_telemetry_to_db(data, received_at)
 
     print(
         f"[{received_at}] Truck {data.truck_id} -> "
