@@ -1,10 +1,10 @@
 # Truck Track Dashboard
 
-A simple truck telemetry dashboard built with FastAPI, Python, and Mapbox.
+A simple truck telemetry dashboard built with FastAPI, PostgreSQL, Python, and Mapbox.
 
 ## Overview
 
-This project simulates truck telemetry data and visualizes the truck location on a Mapbox dashboard.
+This project simulates truck telemetry data, stores it in PostgreSQL, and visualizes truck locations on a Mapbox dashboard.
 
 ## Screenshot
 
@@ -14,14 +14,17 @@ This project simulates truck telemetry data and visualizes the truck location on
 
 - Python truck simulator
 - FastAPI backend API
+- PostgreSQL telemetry storage
 - Mapbox-based dashboard
-- Truck speed, battery level, latitude, and longitude display
+- Multiple truck simulation
+- Truck speed, battery level, status, latitude, and longitude display
 - Real-time-like updates every 3 seconds
 
 ## Tech Stack
 
 - Python
 - FastAPI
+- PostgreSQL
 - Mapbox GL JS
 - JavaScript
 - HTML / CSS
@@ -29,7 +32,9 @@ This project simulates truck telemetry data and visualizes the truck location on
 ## How It Works
 
 ```text
-simulator.py -> FastAPI backend -> frontend dashboard -> Mapbox map
+simulator.py -> FastAPI backend -> PostgreSQL
+                         ↓
+                 frontend dashboard -> Mapbox map
 ```
 
 ## Project Structure
@@ -38,8 +43,13 @@ simulator.py -> FastAPI backend -> frontend dashboard -> Mapbox map
 T2/
 ├── server.py
 ├── simulator.py
+├── database.py
 ├── frontend/
-│   └── index.html
+│   ├── index.html
+│   ├── app.js
+│   └── style.css
+├── screenshots/
+│   └── dashboard.png
 ├── requirements.txt
 ├── README.md
 └── .gitignore
@@ -49,6 +59,29 @@ T2/
 
 ```bash
 pip install -r requirements.txt
+```
+
+## Database Setup
+
+Create PostgreSQL database:
+
+```bash
+createdb truck_dashboard
+```
+
+Create telemetry table:
+
+```sql
+CREATE TABLE telemetry_logs (
+	id SERIAL PRIMARY KEY,
+	truck_id VARCHAR(50) NOT NULL,
+	latitude DOUBLE PRECISION NOT NULL,
+	longitude DOUBLE PRECISION NOT NULL,
+	speed DOUBLE PRECISION NOT NULL,
+	battery_level INTEGER NOT NULL,
+	status VARCHAR(30) NOT NULL,
+	received_at TIMESTAMP NOT NULL
+);
 ```
 
 ## Run Backend
@@ -75,8 +108,16 @@ frontend/index.html
 
 You need your own Mapbox public token.
 
-Replace this line in `frontend/index.html`:
+Create a local file:
+
+```text
+frontend/config.js
+```
+
+Add your token:
 
 ```js
-mapboxgl.accessToken = "your_mapbox_token_here";
+const MAPBOX_TOKEN = "your_mapbox_token_here";
 ```
+
+This file is ignored by Git and should not be pushed to GitHub.
