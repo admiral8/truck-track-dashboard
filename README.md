@@ -121,3 +121,30 @@ const MAPBOX_TOKEN = "your_mapbox_token_here";
 ```
 
 This file is ignored by Git and should not be pushed to GitHub.
+
+## API Endpoints
+
+### POST /api/v1/telemetry
+
+Receives truck telemetry data from the simulator and stores it in PostgreSQL.
+
+Example payload:
+
+- truck_id: T2-TRUCK-001
+- latitude: 35.6895
+- longitude: 139.6917
+- speed: 58.5
+- battery_level: 82
+- status: moving
+
+### GET /api/v1/trucks
+
+Returns the latest telemetry data for all trucks and is used by the frontend dashboard.
+
+## Future Improvements
+
+- Display historical routes on the Mapbox map
+- Add error detection for abnormal telemetry data
+- Add Docker and Docker Compose setup
+- Add CI/CD pipeline with GitHub Actions
+- Move database settings to environment variables
