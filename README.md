@@ -40,7 +40,7 @@ simulator.py -> FastAPI backend -> PostgreSQL
 ## Project Structure
 
 ```text
-T2/
+truck-track-dashboard/
 ├── server.py
 ├── simulator.py
 ├── database.py
