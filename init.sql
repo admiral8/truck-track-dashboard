@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS telemetry_logs (
+    id SERIAL PRIMARY KEY,
+    truck_id VARCHAR(50) NOT NULL,
+    latitude DOUBLE PRECISION NOT NULL,
+    longitude DOUBLE PRECISION NOT NULL,
+    speed DOUBLE PRECISION NOT NULL,
+    battery_level INTEGER NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    received_at TIMESTAMP NOT NULL
+);

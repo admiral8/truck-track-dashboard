@@ -5,3 +5,5 @@ __pycache__/
 .DS_Store
 .vscode/
 frontend/config.js
+v1.zip
+docs/config.js

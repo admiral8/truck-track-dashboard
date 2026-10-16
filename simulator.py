@@ -2,21 +2,21 @@ import time
 import random
 import requests
 
-SERVER_URL = "http://127.0.0.1:8000/api/v1/telemetry"
+SERVER_URL = "http://backend:8000/api/v1/telemetry"
 
 trucks = [
 	{
-		"truck_id": "T2-TRUCK-001",
+		"truck_id": "TRUCK-001",
 		"latitude": 35.6895,
 		"longitude": 139.6917,
 	},
 	{
-		"truck_id": "T2-TRUCK-002",
+		"truck_id": "TRUCK-002",
 		"latitude": 35.7000,
 		"longitude": 139.7500,
 	},
 	{
-		"truck_id": "T2-TRUCK-003",
+		"truck_id": "TRUCK-003",
 		"latitude": 35.6700,
 		"longitude": 139.7600,
 	},
@@ -38,7 +38,6 @@ def get_status(speed, battery_level):
 try:
 	while True:
 		for truck in trucks:
-			# Simulate small movement around the current position.
 			truck["latitude"] += random.uniform(-0.0005, 0.0005)
 			truck["longitude"] += random.uniform(-0.0005, 0.0005)
 

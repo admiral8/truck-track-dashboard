@@ -6,7 +6,11 @@ import uvicorn
 
 from database import get_connection
 
-app = FastAPI(title="T2 Fleet Telemetry API")
+app = FastAPI(title="Truck Telemetry API")
+
+@app.get("/health")
+def health_check():
+    return {"status": "ok"}
 
 app.add_middleware(
     CORSMiddleware,
@@ -16,7 +20,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Temporary in-memory storage. Data is lost when the server restarts.
+# Only here
 latest_telemetry = {}
 
 
@@ -92,11 +96,11 @@ async def receive_telemetry(data: TelemetryData):
     }
 
 
-# Endpoint used by the dashboard to fetch latest truck data.
+# Endpoint
 @app.get("/api/v1/trucks")
 async def get_trucks():
     return list(latest_telemetry.values())
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
