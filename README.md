@@ -2,6 +2,12 @@
 
 A truck telemetry dashboard built with FastAPI, PostgreSQL, Docker, and Mapbox GL JS.
 
+## 🌐 Live Demo
+
+🚛 **[Open Truck Track Dashboard](https://admiral8.github.io/truck-track-dashboard/)**
+
+Interactive dashboard for monitoring simulated truck telemetry in real time.
+
 ## Overview
 
 Truck Track Dashboard is a personal backend development project that simulates truck telemetry data, stores it in PostgreSQL, and visualizes vehicle locations on an interactive map.
