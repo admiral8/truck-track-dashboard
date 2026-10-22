@@ -1,26 +1,102 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <meta charset="utf-8" />
-    <title>Truck Track Dashboard</title>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Truck Track Dashboard</title>
 
-    <script src="https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.js"></script>
-    <link href="https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.css" rel="stylesheet" />
-
-    <link rel="stylesheet" href="style.css" />
+	<script src="https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.js"></script>
+	<link href="https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.css" rel="stylesheet" />
+	<link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
-    <div class="panel">
-        <h2>Truck Track Dashboard</h2>
-        <div id="truck-info">Waiting for telemetry...</div>
-    </div>
+	<div class="dashboard">
+		<header class="navbar">
+			<h1>Truck Track Dashboard</h1>
 
-    <div id="map"></div>
+			<nav class="tabs">
+				<button id="map-tab" class="tab active" type="button" onclick="switchTab('map')">
+					Map
+				</button>
 
-    <script src="config.js"></script> config higher than app
-    <script src="app.js"></script>
+				<button id="trucks-tab" class="tab" type="button" onclick="switchTab('trucks')">
+					Trucks
+				</button>
+			</nav>
+		</header>
+
+		<section id="map-page" class="page active">
+			<div id="map"></div>
+		</section>
+
+		<section id="trucks-page" class="page">
+			<div class="trucks-header">
+				<h2>Fleet Overview</h2>
+				<p>Real-time vehicle telemetry</p>
+			</div>
+
+			<div class="trucks-toolbar">
+				<input type="search" id="truck-search" placeholder="Search by Truck ID..." />
+
+				<select id="status-filter">
+					<option value="all">All statuses</option>
+					<option value="moving">Moving</option>
+					<option value="idle">Idle</option>
+					<option value="low_battery">Low battery</option>
+				</select>
+			</div>
+
+			<div class="table-container">
+				<table id="trucks-table">
+					<thead>
+						<tr>
+							<th>Truck ID</th>
+							<th>Status</th>
+							<th>Speed</th>
+							<th>Battery</th>
+							<th>Latitude</th>
+							<th>Longitude</th>
+							<th>Last Update</th>
+						</tr>
+					</thead>
+
+					<tbody id="truck-info">
+						<tr>
+							<td colspan="7">Waiting for telemetry...</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</section>
+	</div>
+
+	<script src="config.js"></script>
+	<script src="app.js"></script>
+
+	<script>
+		function switchTab(tab) {
+			const mapPage = document.getElementById("map-page");
+			const trucksPage = document.getElementById("trucks-page");
+			const mapTab = document.getElementById("map-tab");
+			const trucksTab = document.getElementById("trucks-tab");
+
+			const showMap = tab === "map";
+
+			mapPage.classList.toggle("active", showMap);
+			trucksPage.classList.toggle("active", !showMap);
+
+			mapTab.classList.toggle("active", showMap);
+			trucksTab.classList.toggle("active", !showMap);
+
+			if (showMap && typeof map !== "undefined") {
+				setTimeout(() => {
+					map.resize();
+				}, 100);
+			}
+		}
+	</script>
 </body>
 
 </html>
