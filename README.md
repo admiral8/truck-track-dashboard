@@ -2,132 +2,138 @@
 
 **Real-Time Fleet Monitoring & Telemetry System**
 
-A backend-focused fleet monitoring project built with **Python, FastAPI, PostgreSQL, Docker Compose, and Mapbox GL JS**.
+A backend-focused fleet monitoring application built with **Python, FastAPI, PostgreSQL, Docker Compose, and Mapbox GL JS**.
 
-The application simulates telemetry from **101 trucks**, processes and stores vehicle data through a REST API, and visualizes the latest information in an interactive dashboard.
+The project simulates telemetry data from **101 virtual trucks**, processes and stores vehicle information through a REST API, and visualizes the latest telemetry on an interactive dashboard.
 
 ## 🌐 Live Demo
 
-**[Open Truck Track Dashboard](https://admiral8.github.io/truck-track-dashboard/)**
+🚛 **[Open Truck Track Dashboard](https://admiral8.github.io/truck-track-dashboard/)**
 
-The Dashboard 2.0 frontend is hosted on GitHub Pages.
+Dashboard 2.0 is deployed to GitHub Pages.
 
-> **Demo limitation:** The published frontend currently connects to `http://127.0.0.1:8000`. Live telemetry is available when the API is running on the visitor's own machine. Public cloud deployment of the backend is planned.
+> **Note:** The frontend is publicly accessible, but live telemetry currently requires a locally running FastAPI backend at `http://127.0.0.1:8000`. Public backend deployment is planned.
 
 ## 📸 Screenshots
 
-### Live Map
+### Live Fleet Map
 
-![Dashboard Map](screenshots/dashboard01.png)
+![Truck Track Dashboard 2.0 — Map](screenshots/dashboard01.png)
 
-Interactive map showing simulated truck locations and vehicle status.
+Interactive Mapbox map showing vehicle locations with color-coded status markers.
 
 ### Fleet Overview
 
-![Fleet Overview](screenshots/dashboard01_trucks.png)
+![Truck Track Dashboard 2.0 — Trucks](screenshots/dashboard01_trucks.png)
 
-Real-time telemetry table with vehicle ID, status, speed, battery level, coordinates, and latest update.
+Real-time telemetry table displaying truck IDs, statuses, speed, battery level, GPS coordinates, and timestamps.
 
 ### Status Filtering
 
-![Status Filtering](screenshots/dashboard01_statuses.png)
+![Dashboard Status Filtering](screenshots/dashboard01_statuses.png)
 
-![Low Battery Filter](screenshots/dashboard01_olb.png)
+Search for individual trucks and filter by vehicle status.
 
-Search trucks by ID and filter vehicles by status.
+### Low Battery Monitoring
 
-## Overview
+![Low Battery Trucks](screenshots/dashboard01_olb.png)
 
-Truck Track Dashboard is a personal backend engineering project designed to demonstrate how a telemetry monitoring system can collect, process, store, and retrieve vehicle data.
+Filter vehicles with low battery levels.
+
+## 📖 Overview
+
+Truck Track Dashboard is a personal backend development project designed to demonstrate practical experience in API development, database integration, containerization, and telemetry processing.
 
 The system consists of three Docker services:
 
-- **Simulator:** Generates telemetry events for 101 virtual trucks.
-- **FastAPI Backend:** Validates incoming telemetry, stores records, and exposes REST endpoints.
-- **PostgreSQL:** Persists telemetry records and supports retrieval of the latest vehicle data.
+- **Simulator:** Generates GPS coordinates, speed, battery level, and status data for 101 virtual trucks.
+- **FastAPI Backend:** Receives telemetry events, validates incoming data, stores records, and exposes REST API endpoints.
+- **PostgreSQL:** Stores telemetry records and supports retrieval of the latest vehicle data.
 
-A separate JavaScript frontend requests data from the API and renders it using Mapbox GL JS.
+A separate JavaScript frontend communicates with the backend and visualizes truck locations using Mapbox GL JS.
 
-## Features
+## ✨ Features
 
 ### Backend
 
 - REST API developed with FastAPI
 - Telemetry ingestion through HTTP POST requests
-- PostgreSQL 16 integration
+- PostgreSQL 16 database integration
 - Latest telemetry retrieval for multiple trucks
-- Containerized services using Docker Compose
+- Docker Compose multi-container architecture
 - Backend and database health checks
 - Environment-based configuration
-- Interactive API documentation using Swagger UI
+- Interactive Swagger API documentation
 
-### Simulator
+### Truck Simulator
 
 - 101 virtual trucks
-- Simulated GPS coordinates
-- Speed, battery level, and vehicle status
-- Telemetry generation approximately every 3 seconds per simulation cycle
-- Three vehicle statuses: `moving`, `idle`, and `low_battery`
+- Simulated GPS movement
+- Randomized speed and battery level
+- Vehicle status generation
+- Telemetry simulation cycles approximately every 3 seconds
+- Three supported statuses: `moving`, `idle`, and `low_battery`
 
 ### Dashboard 2.0
 
+- Modern dark-themed interface
 - Interactive Mapbox map
-- Dark-themed dashboard interface
-- Separate **Map** and **Trucks** views
+- Separate **Map** and **Trucks** tabs
 - Color-coded vehicle markers
-- Real-time telemetry table
-- Truck ID search
-- Status filtering
+- Live telemetry table
+- Search by Truck ID
+- Filter by vehicle status
 - Automatic API polling every 3 seconds
-- Responsive interface
+- Responsive layout
 
-## Tech Stack
+## 🛠 Tech Stack
 
-| Layer | Technologies |
+| Category | Technologies |
 |---|---|
 | Backend | Python, FastAPI |
 | Database | PostgreSQL 16 |
 | Frontend | HTML, CSS, JavaScript |
-| Mapping | Mapbox GL JS |
+| Maps | Mapbox GL JS |
 | Infrastructure | Docker, Docker Compose |
-| API Documentation | OpenAPI / Swagger UI |
+| API Documentation | OpenAPI, Swagger UI |
 | Frontend Hosting | GitHub Pages |
+| Version Control | Git, GitHub |
 
-## System Architecture
+## 🏗 System Architecture
 
 ```text
-                  Python Simulator
-                   (101 Trucks)
-                         |
-                         | HTTP POST
-                         v
-                  FastAPI Backend
-                         |
-                         | SQL
-                         v
-                    PostgreSQL
-                         |
-                         | SQL Query
-                         v
-                  FastAPI Backend
-                         |
-                         | HTTP GET
-                         v
-                  Dashboard 2.0
-                         |
-                         v
-                    Mapbox GL JS
+                       Python Simulator
+                         (101 Trucks)
+                               |
+                               | HTTP POST
+                               v
+                        FastAPI Backend
+                               |
+                               | SQL INSERT
+                               v
+                          PostgreSQL
+                               |
+                               | SQL SELECT
+                               v
+                        FastAPI Backend
+                               |
+                               | HTTP GET
+                               v
+                        Dashboard 2.0
+                               |
+                               v
+                          Mapbox GL JS
 ```
 
-**Telemetry flow**
+### Data Flow
 
-1. The Python simulator generates telemetry for virtual trucks.
-2. Telemetry events are sent to FastAPI through `POST /api/v1/telemetry`.
-3. FastAPI validates and stores records in PostgreSQL.
+1. The Python simulator generates telemetry data for virtual trucks.
+2. Each telemetry event is sent to FastAPI using `POST /api/v1/telemetry`.
+3. FastAPI validates and stores the event in PostgreSQL.
 4. The frontend requests the latest vehicle information through `GET /api/v1/trucks`.
-5. The dashboard updates map markers and the telemetry table.
+5. The dashboard updates truck markers and telemetry information.
 
-## Project Structure
+## 📁 Project Structure
 
 ```text
 truck-track-dashboard/
@@ -160,9 +166,9 @@ truck-track-dashboard/
     └── dashboard01_olb.png
 ```
 
-The `frontend/` directory contains the local dashboard. The `docs/` directory contains the GitHub Pages version.
+The `frontend/` directory contains the local dashboard. The `docs/` directory contains the GitHub Pages deployment version.
 
-## Quick Start
+## 🚀 Quick Start
 
 ### Prerequisites
 
@@ -180,11 +186,13 @@ cd truck-track-dashboard
 
 ### 2. Configure Environment Variables
 
+Create a local `.env` file:
+
 ```bash
 cp .env.example .env
 ```
 
-Example database configuration:
+Example configuration:
 
 ```env
 POSTGRES_DB=truck_dashboard
@@ -194,9 +202,9 @@ POSTGRES_HOST=db
 POSTGRES_PORT=5432
 ```
 
-Replace the example password with a suitable local credential.
+Change the example password as appropriate for your environment.
 
-Do not commit `.env` to GitHub.
+Never commit `.env` to GitHub.
 
 ### 3. Start Docker Services
 
@@ -204,15 +212,15 @@ Do not commit `.env` to GitHub.
 docker compose up --build -d
 ```
 
-Docker Compose starts the following services:
+Docker Compose starts three services:
 
 | Service | Description |
 |---|---|
 | `db` | PostgreSQL database |
 | `backend` | FastAPI REST API |
-| `simulator` | Virtual truck telemetry generator |
+| `simulator` | Truck telemetry generator |
 
-Check their status:
+Verify container status:
 
 ```bash
 docker compose ps
@@ -222,21 +230,21 @@ The backend and database should report healthy status, and the simulator should 
 
 ### 4. Configure Mapbox
 
-Create the local configuration file:
+Create your local configuration file:
 
 ```bash
 cp frontend/config.example.js frontend/config.js
 ```
 
-Set your public Mapbox token in `frontend/config.js`:
+Open `frontend/config.js` and insert your Mapbox public access token:
 
 ```javascript
 const MAPBOX_TOKEN = "your_mapbox_public_token";
 ```
 
-You can obtain a token from [Mapbox](https://account.mapbox.com/).
+Create a token at [Mapbox](https://account.mapbox.com/).
 
-Do not put secret tokens in frontend code.
+Do not expose secret access tokens in frontend code.
 
 ### 5. Start the Frontend
 
@@ -246,43 +254,45 @@ Run:
 python3 -m http.server 5500 --directory frontend
 ```
 
-Open:
+Open the dashboard:
 
 **http://localhost:5500**
 
-The frontend communicates with the FastAPI backend at:
+The frontend requests telemetry from:
 
-`http://127.0.0.1:8000`
+`http://127.0.0.1:8000/api/v1/trucks`
 
 ### 6. API Documentation
 
-Open Swagger UI:
+FastAPI provides interactive Swagger documentation:
 
 **http://localhost:8000/docs**
 
 ### 7. Stop the Application
 
+Stop the containers:
+
 ```bash
 docker compose down
 ```
 
-This stops and removes the containers while preserving the PostgreSQL volume.
+The PostgreSQL volume remains available after the containers stop.
 
-To remove the database volume as well:
+To delete the containers and database volume:
 
 ```bash
 docker compose down -v
 ```
 
-**Warning:** The `-v` option deletes stored database data.
+**Warning:** This permanently removes the stored PostgreSQL data in the Compose-managed volume.
 
-## API Endpoints
+## 🔌 API Endpoints
 
 | Method | Endpoint | Description |
 |---|---|---|
-| GET | `/health` | Backend health check |
-| GET | `/api/v1/trucks` | Retrieve latest truck telemetry |
-| POST | `/api/v1/telemetry` | Submit a telemetry event |
+| GET | `/health` | Check backend health |
+| GET | `/api/v1/trucks` | Retrieve the latest telemetry for trucks |
+| POST | `/api/v1/telemetry` | Receive and store telemetry events |
 
 ### POST /api/v1/telemetry
 
@@ -301,81 +311,87 @@ Example request:
 
 ### GET /api/v1/trucks
 
-Returns the latest available telemetry for trucks stored in the database.
+Returns the latest available telemetry for trucks stored in PostgreSQL.
 
-The dashboard uses this endpoint to update vehicle markers and the fleet table.
+The dashboard uses this endpoint to update the map and fleet table.
 
-## Database
+## 🗄 Database
 
 PostgreSQL stores telemetry records in the `telemetry_logs` table.
 
-Recorded information includes:
+Each record contains:
 
 - Truck ID
-- Latitude and longitude
+- Latitude
+- Longitude
 - Speed
 - Battery level
 - Vehicle status
 - Timestamp
 
-The database schema is initialized through `init.sql` when a new PostgreSQL volume is created.
+The database initialization script is located in `init.sql`.
 
-A Docker named volume preserves data across container restarts.
+A Docker named volume preserves stored records across container restarts.
 
-## Security Notes
+## 🔒 Security Notes
 
-- Local configuration is managed through environment variables.
-- `.env` should remain excluded from version control.
-- Mapbox public access tokens are intended for client-side usage; secret tokens must not be exposed.
-- Database credentials should be changed before production deployment.
-- The current public frontend is not a fully deployed production system.
-- Production deployment will require appropriate API configuration, HTTPS, and access controls.
+- Local database settings are configured through environment variables.
+- `.env` is excluded from version control.
+- Secret API tokens must not be placed in frontend code.
+- Mapbox public access tokens are intended for client-side use.
+- Production deployment requires secure credentials and appropriate API access controls.
+- The current public frontend is not yet a fully hosted production application.
 
-## Roadmap
+## 🗺 Development Roadmap
 
 ### Phase 1 — Public Deployment
 
-- [x] Dockerized backend and database
-- [x] Multi-truck telemetry simulator
-- [x] Dashboard 2.0
+- [x] FastAPI backend
+- [x] PostgreSQL integration
+- [x] Docker Compose environment
+- [x] 101-truck telemetry simulator
+- [x] Dashboard 2.0 interface
 - [x] GitHub Pages frontend deployment
 - [ ] Public HTTPS backend
 - [ ] Cloud PostgreSQL
-- [ ] Public live telemetry accessible without local Docker
+- [ ] Public live telemetry without local Docker
 
 ### Phase 2 — Fleet Analytics
 
-- [ ] Fleet statistics
+- [ ] Fleet statistics dashboard
 - [ ] Historical telemetry API
 - [ ] Route history visualization
 - [ ] Route playback
+- [ ] Telemetry alerts
 
-### Phase 3 — Real-Time Communication
+### Phase 3 — Real-Time Processing
 
 - [ ] WebSocket streaming
-- [ ] Improved asynchronous processing
-- [ ] Real-time alerts
+- [ ] Improved asynchronous telemetry processing
+- [ ] Real-time status notifications
 
 ### Phase 4 — Performance & Reliability
 
-- [ ] Automated API tests
+- [ ] Automated API tests with pytest
 - [ ] CI pipeline for backend tests
 - [ ] Database query optimization
 - [ ] Load testing
-- [ ] Structured logging and monitoring
+- [ ] Structured logging
+- [ ] Performance monitoring
 
 ### Phase 5 — Advanced Architecture
 
 - [ ] Message queue integration
 - [ ] Batch telemetry processing
 - [ ] Large-scale fleet simulation
-- [ ] Performance benchmarks and architecture documentation
+- [ ] Performance benchmarks
+- [ ] Architecture documentation
 
-## Project Goals
+## 🎯 Project Goals
 
-The goal of this project is to gain practical experience in backend development, database design, API communication, containerization, and scalable telemetry processing.
+The primary goal of Truck Track Dashboard is to gain practical experience in backend engineering, including REST API development, relational databases, containerization, and telemetry processing.
 
-Future development will focus on system reliability, performance measurement, and real-time data processing rather than visual features alone.
+Future development will focus on improving system reliability, scalability, and real-time data processing.
 
 ---
 
