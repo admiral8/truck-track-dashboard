@@ -4,23 +4,17 @@ import requests
 
 SERVER_URL = "http://backend:8000/api/v1/telemetry"
 
-trucks = [
-	{
-		"truck_id": "TRUCK-001",
-		"latitude": 35.6895,
-		"longitude": 139.6917,
-	},
-	{
-		"truck_id": "TRUCK-002",
-		"latitude": 35.7000,
-		"longitude": 139.7500,
-	},
-	{
-		"truck_id": "TRUCK-003",
-		"latitude": 35.6700,
-		"longitude": 139.7600,
-	},
-]
+trucks = []
+
+for i in range(1, 102):
+    truck = {
+		"truck_id": f"TRUCK-{i:03d}",
+		"latitude": random.uniform(35.60, 35.80),
+		"longitude": random.uniform(139.60, 139.90)
+	}
+    trucks.append(truck)
+
+print(len(trucks))
 
 print("Simulator started for multiple trucks...")
 
