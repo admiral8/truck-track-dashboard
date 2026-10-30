@@ -14,19 +14,20 @@ Dashboard 2.0 is deployed to GitHub Pages.
 
 > **Note:** The frontend is publicly accessible, but live telemetry currently requires a locally running FastAPI backend at `http://127.0.0.1:8000`. Public backend deployment is planned.
 
+
 ## 📸 Screenshots
 
-### Live Fleet Map
+### 🌍 Dashboard Overview
 
-![Truck Track Dashboard 2.0 — Map](screenshots/dashboard01.png)
+![Truck Track Dashboard 2.0 — Overview](screenshots/dashboard02.png)
 
-Interactive Mapbox map showing vehicle locations with color-coded status markers.
+Full dashboard view featuring the upgraded Mapbox Satellite 3D map, live vehicle tracking, and an improved user interface.
 
-### Fleet Overview
+### 🏙️ Satellite 3D Map
 
-![Truck Track Dashboard 2.0 — Trucks](screenshots/dashboard01_trucks.png)
+![Truck Track Dashboard 2.0 — 3D Buildings](screenshots/dashboard02z.png)
 
-Real-time telemetry table displaying truck IDs, statuses, speed, battery level, GPS coordinates, and timestamps.
+Detailed satellite view with 3D buildings, realistic terrain imagery, tilted camera perspective, and color-coded vehicle markers.
 
 ### Status Filtering
 
