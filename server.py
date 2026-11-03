@@ -1,8 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import datetime
+from typing import Literal
 import uvicorn
+
 
 from database import get_connection
 
@@ -25,12 +27,12 @@ latest_telemetry = {}
 
 
 class TelemetryData(BaseModel):
-    truck_id: str
-    latitude: float
-    longitude: float
-    speed: float
-    battery_level: int
-    status: str
+    truck_id: str = Field(min_length=1)
+    latitude: float = Field(ge=-90, le=90)
+    longitude: float = Field(ge=-180, le=180)
+    speed: float = Field(ge=0, le=200)
+    battery_level: int = Field(ge=0, le=100)
+    status: Literal["low_battery", "idle", "moving"]
 
 
 def save_telemetry_to_db(data: TelemetryData, received_at: str):
