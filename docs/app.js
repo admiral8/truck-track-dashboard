@@ -197,7 +197,61 @@ function updateMarkers(trucks) {
     }
   });
 }
+// ===== Demo mode (when API is not reachable, e.g. on GitHub Pages) =====
+const DEMO_CENTER = [139.6917, 35.6895]; // same as map center
+const DEMO_COUNT = 30;
+const DEMO_STATUSES = ["moving", "moving", "idle", "low_battery"];
 
+let demoTrucks = [];
+
+function makeDemoTruck(i) {
+  return {
+    truck_id: `DEMO-${String(i).padStart(3, "0")}`,
+    latitude: DEMO_CENTER[1] + Math.random() * 0.02 - 0.01,
+    longitude: DEMO_CENTER[0] + Math.random() * 0.02 - 0.01,
+    speed: Math.random() * 80,
+    battery_level: Math.round(20 + Math.random() * (100 - 20)),
+    status: DEMO_STATUSES[Math.floor(Math.random() * DEMO_STATUSES.length)],
+    received_at: new Date().toISOString(),
+  };
+}
+
+function getDemoTrucks() {
+  if (demoTrucks.length === 0) {
+    for (let i = 1; i <= DEMO_COUNT; i++) {
+      demoTrucks.push(makeDemoTruck(i));
+    }
+  }
+
+  // moving trucks drive a little every update
+  demoTrucks.forEach((truck) => {
+    if (truck.status === "moving") {
+      truck.latitude += Math.random() * 0.0006 - 0.0003;
+      truck.longitude += Math.random() * 0.0006 - 0.0003;
+    }
+    truck.received_at = new Date().toISOString();
+  });
+
+  return demoTrucks;
+}
+
+function showDemoBadge() {
+  if (document.getElementById("demo-badge")) return;
+
+  const badge = document.createElement("div");
+  badge.id = "demo-badge";
+  badge.textContent = "Demo mode — API offline, showing simulated trucks";
+  badge.style.cssText =
+    "position:fixed;bottom:16px;left:16px;z-index:1000;padding:8px 12px;" +
+    "background:rgba(234,179,8,0.95);color:#111;font:600 13px sans-serif;border-radius:8px;";
+  document.body.appendChild(badge);
+}
+
+function hideDemoBadge() {
+  document.getElementById("demo-badge")?.remove();
+}
+
+// ===== Load trucks =====
 async function loadTrucks() {
   try {
     const response = await fetch(API_URL, {
@@ -214,22 +268,17 @@ async function loadTrucks() {
       throw new Error("Unexpected API response");
     }
 
+    hideDemoBadge();
     allTrucks = trucks;
-
     updateMarkers(allTrucks);
     renderTrucks();
   } catch (error) {
-    console.error("Failed to load trucks:", error);
+    console.warn("API unavailable, using demo data:", error.message);
 
-    if (allTrucks.length === 0) {
-      tableBody.innerHTML = `
-                <tr>
-                    <td colspan="7" class="empty-state">
-                        Cannot connect to API
-                    </td>
-                </tr>
-            `;
-    }
+    showDemoBadge();
+    allTrucks = getDemoTrucks();
+    updateMarkers(allTrucks);
+    renderTrucks();
   }
 }
 
