@@ -53,6 +53,7 @@ function getMarkerColor(status) {
     moving: "#22c55e",
     idle: "#eab308",
     low_battery: "#ef4444",
+    offline: "#6b7280",
   };
 
   return colors[status] || "#6b7280";
@@ -63,6 +64,7 @@ function getStatusLabel(status) {
     moving: "Moving",
     idle: "Idle",
     low_battery: "Low Battery",
+    offline: "Offline",
   };
 
   return labels[status] || status;
@@ -80,6 +82,13 @@ function escapeHTML(value) {
         "'": "&#39;",
       })[char],
   );
+}
+
+function formatTime(value) {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return date.toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" });
 }
 
 function formatNumber(value, digits = 2) {
@@ -115,7 +124,7 @@ function renderTrucks() {
       const status = escapeHTML(truck.status);
       const label = escapeHTML(getStatusLabel(truck.status));
       const id = escapeHTML(truck.truck_id);
-      const receivedAt = escapeHTML(truck.received_at ?? "—");
+      const receivedAt = escapeHTML(formatTime(truck.received_at));
 
       return `
             <tr>
@@ -160,7 +169,7 @@ function updateMarkers(trucks) {
                 <p>Status: ${escapeHTML(getStatusLabel(truck.status))}</p>
                 <p>Speed: ${formatNumber(truck.speed, 1)} km/h</p>
                 <p>Battery: ${formatNumber(truck.battery_level, 0)}%</p>
-                <p>Updated: ${escapeHTML(truck.received_at ?? "—")}</p>
+                <p>Updated: ${escapeHTML(formatTime(truck.received_at))}</p>
             </div>
         `;
 

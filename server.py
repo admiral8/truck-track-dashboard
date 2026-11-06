@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from datetime import datetime
+from datetime import datetime, timezone
 from contextlib import asynccontextmanager
 from typing import Literal
 import uvicorn
@@ -26,9 +26,24 @@ def ensure_schema():
             speed DOUBLE PRECISION NOT NULL,
             battery_level INTEGER NOT NULL,
             status VARCHAR(50) NOT NULL,
-            received_at TIMESTAMP NOT NULL
+            received_at TIMESTAMPTZ NOT NULL
         );
     """)
+
+    # #6: old columns were TIMESTAMP without zone (values written in UTC).
+    # Convert once to TIMESTAMPTZ.
+    for table in ("telemetry_logs", "trucks_latest"):
+        cursor.execute(
+            "SELECT data_type FROM information_schema.columns "
+            "WHERE table_name = %s AND column_name = 'received_at';",
+            (table,),
+        )
+        row = cursor.fetchone()
+        if row and row[0] == "timestamp without time zone":
+            cursor.execute(
+                f"ALTER TABLE {table} ALTER COLUMN received_at TYPE TIMESTAMPTZ "
+                "USING received_at AT TIME ZONE 'UTC';"
+            )
 
     # first start only: fill it from existing history
     cursor.execute("SELECT EXISTS (SELECT 1 FROM trucks_latest);")
@@ -66,8 +81,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Only here
-latest_telemetry = {}
 
 
 class TelemetryData(BaseModel):
@@ -79,7 +92,7 @@ class TelemetryData(BaseModel):
     status: Literal["low_battery", "idle", "moving"]
 
 
-def save_telemetry_to_db(data: TelemetryData, received_at: str):
+def save_telemetry_to_db(data: TelemetryData, received_at: datetime):
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -142,7 +155,13 @@ def get_latest_from_db():
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT truck_id, latitude, longitude, speed, battery_level, status, received_at
+        SELECT
+            truck_id, latitude, longitude, speed, battery_level,
+            CASE
+                WHEN received_at < NOW() - INTERVAL '5 minutes' THEN 'offline'
+                ELSE status
+            END AS status,
+            received_at
         FROM trucks_latest
         ORDER BY truck_id
     """)
@@ -168,22 +187,12 @@ def get_latest_from_db():
 
 @app.post("/api/v1/telemetry")
 def receive_telemetry(data: TelemetryData):
-    received_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-    latest_telemetry[data.truck_id] = {
-        "truck_id": data.truck_id,
-        "latitude": data.latitude,
-        "longitude": data.longitude,
-        "speed": data.speed,
-        "battery_level": data.battery_level,
-        "status": data.status,
-        "received_at": received_at,
-    }
+    received_at = datetime.now(timezone.utc)
 
     save_telemetry_to_db(data, received_at)
 
     print(
-        f"[{received_at}] Truck {data.truck_id} -> "
+        f"[{received_at:%Y-%m-%d %H:%M:%S} UTC] Truck {data.truck_id} -> "
         f"Coordinates: {data.latitude}, {data.longitude} | "
         f"Speed: {data.speed} km/h | "
         f"Battery: {data.battery_level}% | "

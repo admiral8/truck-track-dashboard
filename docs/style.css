@@ -234,6 +234,11 @@ body {
   color: #f87171;
 }
 
+.status-badge[data-status="offline"] {
+  background: rgba(107, 114, 128, 0.15);
+  color: #9ca3af;
+}
+
 .empty-state {
   text-align: center;
   padding: 50px !important;

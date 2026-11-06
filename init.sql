@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS telemetry_logs (
     speed DOUBLE PRECISION NOT NULL,
     battery_level INTEGER NOT NULL,
     status VARCHAR(50) NOT NULL,
-    received_at TIMESTAMP NOT NULL
+    received_at TIMESTAMPTZ NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_telemetry_truck_time ON telemetry_logs (truck_id, received_at DESC);
@@ -18,5 +18,5 @@ CREATE TABLE IF NOT EXISTS trucks_latest (
     speed DOUBLE PRECISION NOT NULL,
     battery_level INTEGER NOT NULL,
     status VARCHAR(50) NOT NULL,
-    received_at TIMESTAMP NOT NULL
+    received_at TIMESTAMPTZ NOT NULL
 );
