@@ -2,11 +2,57 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from datetime import datetime
+from contextlib import asynccontextmanager
 from typing import Literal
 import uvicorn
 from database import get_connection
 
-app = FastAPI(title="Truck Telemetry API")
+def ensure_schema():
+    # init.sql runs only on an empty volume, so make sure these exist here too
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "CREATE INDEX IF NOT EXISTS idx_telemetry_truck_time "
+        "ON telemetry_logs (truck_id, received_at DESC);"
+    )
+
+    # one row per truck = latest known state (fast to read)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS trucks_latest (
+            truck_id VARCHAR(50) PRIMARY KEY,
+            latitude DOUBLE PRECISION NOT NULL,
+            longitude DOUBLE PRECISION NOT NULL,
+            speed DOUBLE PRECISION NOT NULL,
+            battery_level INTEGER NOT NULL,
+            status VARCHAR(50) NOT NULL,
+            received_at TIMESTAMP NOT NULL
+        );
+    """)
+
+    # first start only: fill it from existing history
+    cursor.execute("SELECT EXISTS (SELECT 1 FROM trucks_latest);")
+    if not cursor.fetchone()[0]:
+        cursor.execute("""
+            INSERT INTO trucks_latest
+            SELECT DISTINCT ON (truck_id)
+                truck_id, latitude, longitude, speed, battery_level, status, received_at
+            FROM telemetry_logs
+            ORDER BY truck_id, received_at DESC;
+        """)
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+
+@asynccontextmanager
+async def lifespan(app):
+    ensure_schema()
+    yield
+
+
+app = FastAPI(title="Truck Telemetry API", lifespan=lifespan)
 
 @app.get("/health")
 def health_check():
@@ -61,6 +107,31 @@ def save_telemetry_to_db(data: TelemetryData, received_at: str):
         ),
     )
 
+    cursor.execute(
+        """
+        INSERT INTO trucks_latest (
+            truck_id, latitude, longitude, speed, battery_level, status, received_at
+        )
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        ON CONFLICT (truck_id) DO UPDATE SET
+            latitude = EXCLUDED.latitude,
+            longitude = EXCLUDED.longitude,
+            speed = EXCLUDED.speed,
+            battery_level = EXCLUDED.battery_level,
+            status = EXCLUDED.status,
+            received_at = EXCLUDED.received_at
+        """,
+        (
+            data.truck_id,
+            data.latitude,
+            data.longitude,
+            data.speed,
+            data.battery_level,
+            data.status,
+            received_at,
+        ),
+    )
+
     conn.commit()
     cursor.close()
     conn.close()
@@ -71,10 +142,9 @@ def get_latest_from_db():
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT DISTINCT ON (truck_id)
-            truck_id, latitude, longitude, speed, battery_level, status, received_at
-        FROM telemetry_logs
-        ORDER BY truck_id, received_at DESC
+        SELECT truck_id, latitude, longitude, speed, battery_level, status, received_at
+        FROM trucks_latest
+        ORDER BY truck_id
     """)
     rows = cursor.fetchall()
 
