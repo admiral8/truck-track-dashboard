@@ -4,9 +4,39 @@ const API_URL = "http://127.0.0.1:8000/api/v1/trucks";
 
 const map = new mapboxgl.Map({
   container: "map",
-  style: "mapbox://styles/mapbox/dark-v11",
+  style: "mapbox://styles/mapbox/satellite-streets-v12",
   center: [139.6917, 35.6895],
-  zoom: 10,
+  zoom: 15.5,
+  pitch: 65,
+  bearing: -25,
+  antialias: true,
+});
+
+map.on("style.load", () => {
+  if (!map.getSource("composite")) return;
+
+  const layers = map.getStyle().layers;
+  const labelLayer = layers.find((layer) => layer.type === "symbol" && layer.layout?.["text-field"]);
+
+  if (!map.getLayer("3d-buildings")) {
+    map.addLayer(
+      {
+        id: "3d-buildings",
+        source: "composite",
+        "source-layer": "building",
+        filter: ["==", "extrude", "true"],
+        type: "fill-extrusion",
+        minzoom: 15,
+        paint: {
+          "fill-extrusion-color": "#d9d5ca",
+          "fill-extrusion-height": ["interpolate", ["linear"], ["zoom"], 15, 0, 15.5, ["get", "height"]],
+          "fill-extrusion-base": ["interpolate", ["linear"], ["zoom"], 15, 0, 15.5, ["get", "min_height"]],
+          "fill-extrusion-opacity": 0.85,
+        },
+      },
+      labelLayer?.id,
+    );
+  }
 });
 
 map.addControl(new mapboxgl.NavigationControl(), "top-right");
