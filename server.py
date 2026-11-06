@@ -4,8 +4,6 @@ from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import Literal
 import uvicorn
-
-
 from database import get_connection
 
 app = FastAPI(title="Truck Telemetry API")
@@ -68,8 +66,38 @@ def save_telemetry_to_db(data: TelemetryData, received_at: str):
     conn.close()
 
 
+def get_latest_from_db():
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT DISTINCT ON (truck_id)
+            truck_id, latitude, longitude, speed, battery_level, status, received_at
+        FROM telemetry_logs
+        ORDER BY truck_id, received_at DESC
+    """)
+    rows = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    trucks = []
+
+    for row in rows:
+        trucks.append({
+            "truck_id": row[0],
+            "latitude": row[1],
+            "longitude": row[2],
+            "speed": row[3],
+            "battery_level": row[4],
+            "status": row[5],
+            "received_at": row[6],
+        })
+    return trucks
+
+
 @app.post("/api/v1/telemetry")
-async def receive_telemetry(data: TelemetryData):
+def receive_telemetry(data: TelemetryData):
     received_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     latest_telemetry[data.truck_id] = {
@@ -98,10 +126,10 @@ async def receive_telemetry(data: TelemetryData):
     }
 
 
-# Endpoint
+#endpoint
 @app.get("/api/v1/trucks")
-async def get_trucks():
-    return list(latest_telemetry.values())
+def get_trucks():
+    return get_latest_from_db()
 
 
 if __name__ == "__main__":
